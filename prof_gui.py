@@ -47,7 +47,9 @@ from matplotlib.figure import Figure
 from functools import partial
 import PIL
 
+from cross_calibrate import cross_calibrate
 from prof_funct import Profile
+from profile_from import *
 
 # pylint: disable = C0103, C0121, W0102
 
@@ -87,7 +89,7 @@ class GUI(tk.Frame):
         self.status_bar.pack(fill=tk.X, expand=False, side=tk.LEFT)
 
         self._color_palette = {'idx': 0, 'val': dict(enumerate(
-            ['red', 'green', 'orange', 'blue', 'yellow', 'purple1', 'grey']*5))}
+            ['red', 'green', 'orange', 'blue', 'yellow', 'purple', 'grey']*5))}
 
         menu = tk.Menu(parent)
         parent.config(menu=menu)
@@ -173,6 +175,7 @@ class GUI(tk.Frame):
         selector_title = tk.Label(master=self.selector, width=10,
                                   bg='white', text='Selector')
         selector_title.pack(side="top", fill="both", expand=True)
+        print(self.profiles)
         for i,profile in enumerate(self.profiles):
             self.subplot.plot(profile.x, profile.y, color=self._color('get'))
             button = tk.Button(master=self.selector,
@@ -192,7 +195,7 @@ class GUI(tk.Frame):
         filename = askopenfilename(
             initialdir=self.data_folder, title="Film File",
             filetypes=(("Film Files", "*.png"), ("all files", "*.*")))
-        self.profiles.append(Profile().from_narrow_png(filename))
+        self.profiles.append(narrow_png(filename))
         self.update('from_narrow_png')
         self.select_active(len(self.profiles)-1)
 
@@ -212,7 +215,7 @@ class GUI(tk.Frame):
         def OK():
             p = [v.get() for v in variables]
             p = [p[0], p[1], (p[2], p[3]), p[4]]
-            self.profiles.append(Profile().from_pulse(*p))
+            self.profiles.append(pulse(*p))
             self.selected_profile.set(len(self.profiles)-1)
             self.update('from_pulse')
             self.select_active(len(self.profiles)-1)
@@ -225,8 +228,8 @@ class GUI(tk.Frame):
         filename = askopenfilename(
             initialdir=self.data_folder, title="SNC Profiler",
             filetypes=(("Profiler Files", "*.prs"), ("all files", "*.*")))
-        self.profiles.append(Profile().from_snc_profiler(filename, 'rad'))
-        self.profiles.append(Profile().from_snc_profiler(filename, 'tvs'))
+        self.profiles.append(snc_profiler(filename, 'rad'))
+        self.profiles.append(snc_profiler(filename, 'tvs'))
         self.update('from_snc_profiler')
         self.select_active(len(self.profiles)-1)
 
@@ -234,7 +237,7 @@ class GUI(tk.Frame):
         filename = askopenfilename(
             initialdir=self.data_folder, title="Film File",
             filetypes=(("CSV Files", "*.csv"), ("all files", "*.*")))
-        self.profiles.append(Profile().from_raystation_line(filename))
+        self.profiles.append(raystation_line(filename))
         self.update('from_raystation_line')
         self.select_active(len(self.profiles)-1)
 
@@ -242,7 +245,7 @@ class GUI(tk.Frame):
         filename = askopenfilename(
             initialdir=self.data_folder, title="RFA File",
             filetypes=(("ASC Files", "*.asc"), ("all files", "*.*")))
-        for profile in Profile().from_rfa_ascii(filename):
+        for profile in rfa_ascii(filename):
             self.profiles.append(profile)
             self.update('from_rfa_ascii')
         self.select_active(len(self.profiles)-1)
@@ -251,7 +254,7 @@ class GUI(tk.Frame):
         filename = askopenfilename(
             initialdir=self.data_folder, title="DAT File",
             filetypes=(("Pinnacle Files", "*.dat"), ("all files", "*.*")))
-        for profile in Profile().from_pinnacle_ascii(filename):
+        for profile in pinnacle_ascii(filename):
             self.profiles.append(profile)
             self.update('from_pinnacle_ascii')
         self.select_active(len(self.profiles)-1)
@@ -264,7 +267,7 @@ class GUI(tk.Frame):
             initialdir=self.data_folder, title="Film File",
             filetypes=(("Film Files", "*.png"), ("all files", "*.*")))
 
-        self.profiles.append(Profile().cross_calibrate(profiler_filename,film_filename))
+        self.profiles.append(cross_calibrate(profiler_filename,film_filename))
         self.update('from_cross_calibration')
         self.select_active(len(self.profiles)-1)
 

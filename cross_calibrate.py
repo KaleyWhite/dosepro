@@ -107,14 +107,14 @@ def cross_calibrate(reference, measured):
         my_pwlf = pwlf.PiecewiseLinFit(x, y)
         my_pwlf.fit(num_pieces)
         if is_monotonic(my_pwlf.predict, x, y):
-            return  my_pwlf.predict
+            return my_pwlf.predict
         else:
             return None
 
-    start_time = time.clock()
+    start_time = time.time()
     last_func = linear(x,y)
     for num_pieces in range(2,10):
-        if (time.clock() - start_time) > 60:
+        if (time.time() - start_time) > 60:
             break
         next_func = piece_linear(x,y,num_pieces)
         if not next_func:
